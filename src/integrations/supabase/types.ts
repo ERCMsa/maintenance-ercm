@@ -14,7 +14,115 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      categories: {
+        Row: {
+          created_at: string
+          icone: string
+          id: string
+          nom: string
+          ordre: number
+        }
+        Insert: {
+          created_at?: string
+          icone?: string
+          id?: string
+          nom: string
+          ordre?: number
+        }
+        Update: {
+          created_at?: string
+          icone?: string
+          id?: string
+          nom?: string
+          ordre?: number
+        }
+        Relationships: []
+      }
+      materiel: {
+        Row: {
+          annee: number | null
+          capacite: string | null
+          categorie_id: string
+          created_at: string
+          date_derniere_maj: string
+          emplacement: string
+          etat: Database["public"]["Enums"]["etat_materiel"]
+          id: string
+          identifiant_complementaire: string | null
+          nom: string
+          notes: string | null
+        }
+        Insert: {
+          annee?: number | null
+          capacite?: string | null
+          categorie_id: string
+          created_at?: string
+          date_derniere_maj?: string
+          emplacement?: string
+          etat?: Database["public"]["Enums"]["etat_materiel"]
+          id?: string
+          identifiant_complementaire?: string | null
+          nom: string
+          notes?: string | null
+        }
+        Update: {
+          annee?: number | null
+          capacite?: string | null
+          categorie_id?: string
+          created_at?: string
+          date_derniere_maj?: string
+          emplacement?: string
+          etat?: Database["public"]["Enums"]["etat_materiel"]
+          id?: string
+          identifiant_complementaire?: string | null
+          nom?: string
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiel_categorie_id_fkey"
+            columns: ["categorie_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materiel_historique: {
+        Row: {
+          ancienne_valeur: string | null
+          champ: string
+          created_at: string
+          id: string
+          materiel_id: string
+          nouvelle_valeur: string | null
+        }
+        Insert: {
+          ancienne_valeur?: string | null
+          champ: string
+          created_at?: string
+          id?: string
+          materiel_id: string
+          nouvelle_valeur?: string | null
+        }
+        Update: {
+          ancienne_valeur?: string | null
+          champ?: string
+          created_at?: string
+          id?: string
+          materiel_id?: string
+          nouvelle_valeur?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiel_historique_materiel_id_fkey"
+            columns: ["materiel_id"]
+            isOneToOne: false
+            referencedRelation: "materiel"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +131,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      etat_materiel: "Bon état" | "État moyen" | "Mauvais état"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +258,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      etat_materiel: ["Bon état", "État moyen", "Mauvais état"],
+    },
   },
 } as const
