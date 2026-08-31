@@ -23,7 +23,7 @@ export function QuickEdit({
   onClose,
 }: {
   materiel: Materiel | null;
-  categorieNom?: string;
+  categorieNom?: string | undefined;
   onClose: () => void;
 }) {
   const qc = useQueryClient();
