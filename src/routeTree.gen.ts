@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EcheancesRouteImport } from './routes/echeances'
 import { Route as MaterielIdRouteImport } from './routes/materiel.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EcheancesRoute = EcheancesRouteImport.update({
+  id: '/echeances',
+  path: '/echeances',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MaterielIdRoute = MaterielIdRouteImport.update({
@@ -25,27 +31,31 @@ const MaterielIdRoute = MaterielIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/echeances': typeof EcheancesRoute
   '/materiel/$id': typeof MaterielIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/echeances': typeof EcheancesRoute
   '/materiel/$id': typeof MaterielIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/echeances': typeof EcheancesRoute
   '/materiel/$id': typeof MaterielIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/materiel/$id'
+  fullPaths: '/' | '/echeances' | '/materiel/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/materiel/$id'
-  id: '__root__' | '/' | '/materiel/$id'
+  to: '/' | '/echeances' | '/materiel/$id'
+  id: '__root__' | '/' | '/echeances' | '/materiel/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  EcheancesRoute: typeof EcheancesRoute
   MaterielIdRoute: typeof MaterielIdRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/echeances': {
+      id: '/echeances'
+      path: '/echeances'
+      fullPath: '/echeances'
+      preLoaderRoute: typeof EcheancesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/materiel/$id': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  EcheancesRoute: EcheancesRoute,
   MaterielIdRoute: MaterielIdRoute,
 }
 export const routeTree = rootRouteImport
