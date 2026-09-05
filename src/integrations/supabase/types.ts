@@ -44,7 +44,13 @@ export type Database = {
           capacite: string | null
           categorie_id: string
           created_at: string
+          date_controle_technique: string | null
+          date_debut_assurance: string | null
+          date_dernier_entretien: string | null
           date_derniere_maj: string
+          date_fin_assurance: string | null
+          date_prochain_controle_technique: string | null
+          date_prochain_entretien: string | null
           emplacement: string
           etat: Database["public"]["Enums"]["etat_materiel"]
           id: string
@@ -57,7 +63,13 @@ export type Database = {
           capacite?: string | null
           categorie_id: string
           created_at?: string
+          date_controle_technique?: string | null
+          date_debut_assurance?: string | null
+          date_dernier_entretien?: string | null
           date_derniere_maj?: string
+          date_fin_assurance?: string | null
+          date_prochain_controle_technique?: string | null
+          date_prochain_entretien?: string | null
           emplacement?: string
           etat?: Database["public"]["Enums"]["etat_materiel"]
           id?: string
@@ -70,7 +82,13 @@ export type Database = {
           capacite?: string | null
           categorie_id?: string
           created_at?: string
+          date_controle_technique?: string | null
+          date_debut_assurance?: string | null
+          date_dernier_entretien?: string | null
           date_derniere_maj?: string
+          date_fin_assurance?: string | null
+          date_prochain_controle_technique?: string | null
+          date_prochain_entretien?: string | null
           emplacement?: string
           etat?: Database["public"]["Enums"]["etat_materiel"]
           id?: string
