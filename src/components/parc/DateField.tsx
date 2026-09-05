@@ -58,7 +58,7 @@ export function DateField({
             <Calendar
               mode="single"
               selected={selected}
-              defaultMonth={selected}
+              {...(selected ? { defaultMonth: selected } : {})}
               onSelect={(d) => onChange(d ? toISO(d) : "")}
               initialFocus
               className={cn("p-3 pointer-events-auto")}
