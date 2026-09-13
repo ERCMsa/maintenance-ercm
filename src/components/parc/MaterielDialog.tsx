@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { DateField } from "@/components/parc/DateField";
+import { PhotoField } from "@/components/parc/PhotoField";
 import { ETATS, ETAT_STYLE, type Categorie, type Etat, type Materiel } from "@/lib/materiel";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,9 @@ const schema = z.object({
     .union([z.literal(""), z.coerce.number().int().min(1900).max(2100)])
     .optional(),
   identifiant_complementaire: z.string().trim().max(60, "Identifiant trop long").optional(),
+  photo_url: z.string().optional(),
+  conducteur: z.string().trim().max(80, "Nom du conducteur trop long").optional(),
+  date_mise_en_place: dateStr,
   etat: z.enum(["Bon état", "État moyen", "Mauvais état"]),
   emplacement: z.string().trim().max(120, "Emplacement trop long"),
   notes: z.string().trim().max(1000, "Notes trop longues").optional(),
@@ -52,6 +56,9 @@ const vide = {
   capacite: "",
   annee: "",
   identifiant_complementaire: "",
+  photo_url: "",
+  conducteur: "",
+  date_mise_en_place: "",
   etat: "Bon état" as Etat,
   emplacement: "",
   notes: "",
@@ -75,6 +82,9 @@ export function MaterielDialog({ open, onOpenChange, categories, materiel }: Pro
       capacite: materiel?.capacite ?? "",
       annee: materiel?.annee ? String(materiel.annee) : "",
       identifiant_complementaire: materiel?.identifiant_complementaire ?? "",
+      photo_url: materiel?.photo_url ?? "",
+      conducteur: materiel?.conducteur ?? "",
+      date_mise_en_place: materiel?.date_mise_en_place ?? "",
       etat: materiel?.etat ?? "Bon état",
       emplacement: materiel?.emplacement ?? "",
       notes: materiel?.notes ?? "",
@@ -98,6 +108,9 @@ export function MaterielDialog({ open, onOpenChange, categories, materiel }: Pro
         capacite: v.capacite || null,
         annee: v.annee === "" || v.annee === undefined ? null : Number(v.annee),
         identifiant_complementaire: v.identifiant_complementaire || null,
+        photo_url: v.photo_url || null,
+        conducteur: v.conducteur || null,
+        date_mise_en_place: v.date_mise_en_place || null,
         etat: v.etat,
         emplacement: v.emplacement,
         notes: v.notes || null,
@@ -135,6 +148,11 @@ export function MaterielDialog({ open, onOpenChange, categories, materiel }: Pro
 
         <div className="space-y-4">
           <div className="space-y-3">
+            <PhotoField
+              value={form.photo_url}
+              nom={form.nom || "Engin"}
+              onChange={(v) => set({ photo_url: v })}
+            />
             <div>
               <label className={label} htmlFor="nom">
                 Nom
@@ -243,6 +261,27 @@ export function MaterielDialog({ open, onOpenChange, categories, materiel }: Pro
                 maxLength={120}
                 placeholder="Chantier X, Atelier, En réparation…"
                 onChange={(e) => set({ emplacement: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className={label} htmlFor="cond">
+                  Conducteur actuel
+                </label>
+                <input
+                  id="cond"
+                  className={champ}
+                  value={form.conducteur}
+                  maxLength={80}
+                  placeholder="Nom du conducteur"
+                  onChange={(e) => set({ conducteur: e.target.value })}
+                />
+              </div>
+              <DateField
+                label="Date de mise en place"
+                value={form.date_mise_en_place}
+                onChange={(v) => set({ date_mise_en_place: v })}
               />
             </div>
           </div>
