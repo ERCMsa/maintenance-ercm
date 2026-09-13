@@ -14,6 +14,7 @@ export type Etat = Database["public"]["Enums"]["etat_materiel"];
 export type Categorie = Database["public"]["Tables"]["categories"]["Row"];
 export type Materiel = Database["public"]["Tables"]["materiel"]["Row"];
 export type Historique = Database["public"]["Tables"]["materiel_historique"]["Row"];
+export type Journal = Database["public"]["Tables"]["materiel_journal"]["Row"];
 
 export const ETATS: Etat[] = ["Bon état", "État moyen", "Mauvais état"];
 
