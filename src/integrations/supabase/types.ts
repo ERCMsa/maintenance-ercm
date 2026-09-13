@@ -43,12 +43,14 @@ export type Database = {
           annee: number | null
           capacite: string | null
           categorie_id: string
+          conducteur: string | null
           created_at: string
           date_controle_technique: string | null
           date_debut_assurance: string | null
           date_dernier_entretien: string | null
           date_derniere_maj: string
           date_fin_assurance: string | null
+          date_mise_en_place: string | null
           date_prochain_controle_technique: string | null
           date_prochain_entretien: string | null
           emplacement: string
@@ -57,17 +59,20 @@ export type Database = {
           identifiant_complementaire: string | null
           nom: string
           notes: string | null
+          photo_url: string | null
         }
         Insert: {
           annee?: number | null
           capacite?: string | null
           categorie_id: string
+          conducteur?: string | null
           created_at?: string
           date_controle_technique?: string | null
           date_debut_assurance?: string | null
           date_dernier_entretien?: string | null
           date_derniere_maj?: string
           date_fin_assurance?: string | null
+          date_mise_en_place?: string | null
           date_prochain_controle_technique?: string | null
           date_prochain_entretien?: string | null
           emplacement?: string
@@ -76,17 +81,20 @@ export type Database = {
           identifiant_complementaire?: string | null
           nom: string
           notes?: string | null
+          photo_url?: string | null
         }
         Update: {
           annee?: number | null
           capacite?: string | null
           categorie_id?: string
+          conducteur?: string | null
           created_at?: string
           date_controle_technique?: string | null
           date_debut_assurance?: string | null
           date_dernier_entretien?: string | null
           date_derniere_maj?: string
           date_fin_assurance?: string | null
+          date_mise_en_place?: string | null
           date_prochain_controle_technique?: string | null
           date_prochain_entretien?: string | null
           emplacement?: string
@@ -95,6 +103,7 @@ export type Database = {
           identifiant_complementaire?: string | null
           nom?: string
           notes?: string | null
+          photo_url?: string | null
         }
         Relationships: [
           {
@@ -134,6 +143,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "materiel_historique_materiel_id_fkey"
+            columns: ["materiel_id"]
+            isOneToOne: false
+            referencedRelation: "materiel"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      materiel_journal: {
+        Row: {
+          conducteur: string | null
+          created_at: string
+          date: string
+          emplacement: string
+          etat: Database["public"]["Enums"]["etat_materiel"]
+          etat_notes: string | null
+          heures: number
+          id: string
+          materiel_id: string
+        }
+        Insert: {
+          conducteur?: string | null
+          created_at?: string
+          date?: string
+          emplacement?: string
+          etat?: Database["public"]["Enums"]["etat_materiel"]
+          etat_notes?: string | null
+          heures?: number
+          id?: string
+          materiel_id: string
+        }
+        Update: {
+          conducteur?: string | null
+          created_at?: string
+          date?: string
+          emplacement?: string
+          etat?: Database["public"]["Enums"]["etat_materiel"]
+          etat_notes?: string | null
+          heures?: number
+          id?: string
+          materiel_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "materiel_journal_materiel_id_fkey"
             columns: ["materiel_id"]
             isOneToOne: false
             referencedRelation: "materiel"

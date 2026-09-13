@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.materiel_track_changes() FROM anon, authenticated, PUBLIC;
