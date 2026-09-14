@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Pencil, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Pencil, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/parc/AppShell";
 import { MaterielDialog } from "@/components/parc/MaterielDialog";
+import { PhotoEngin } from "@/components/parc/PhotoEngin";
+import { JournalSection, totalHeures, useJournal } from "@/components/parc/JournalSection";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ETAT_STYLE,
   iconePourCategorie,
-  sigle,
   type Categorie,
   type Historique,
   type Materiel,
@@ -89,6 +90,8 @@ function FichePage() {
     },
   });
 
+  const journal = useJournal(id);
+
   const m = materiel.data ?? null;
   const cats = categories.data ?? [];
   const categorie = cats.find((c) => c.id === m?.categorie_id);
@@ -119,18 +122,26 @@ function FichePage() {
     <AppShell
       actions={
         m ? (
-          <button
-            onClick={() => setEdition(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-safety px-3.5 py-2 text-sm font-semibold text-safety-foreground transition hover:brightness-110"
-          >
-            <Pencil className="size-4" /> Modifier
-          </button>
+          <>
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-foreground/5 px-3.5 py-2 text-sm font-medium ring-1 ring-border transition hover:bg-foreground/10"
+            >
+              <Printer className="size-4" /> Imprimer la fiche
+            </button>
+            <button
+              onClick={() => setEdition(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-safety px-3.5 py-2 text-sm font-semibold text-safety-foreground transition hover:brightness-110"
+            >
+              <Pencil className="size-4" /> Modifier
+            </button>
+          </>
         ) : null
       }
     >
       <Link
         to="/"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        className="no-print inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> Retour au parc
       </Link>
@@ -149,9 +160,11 @@ function FichePage() {
         <>
           <section className="glass-panel animate-rise rounded-2xl p-4 sm:p-5">
             <div className="flex flex-wrap items-start gap-4">
-              <div className="grid size-14 shrink-0 place-items-center rounded-xl bg-steel/15 font-mono text-base font-bold text-steel">
-                {sigle(m.nom)}
-              </div>
+              <PhotoEngin
+                src={m.photo_url}
+                nom={m.nom}
+                className="size-28 rounded-2xl sm:size-32"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="font-display text-2xl tracking-wide sm:text-3xl">{m.nom}</h1>
@@ -194,7 +207,13 @@ function FichePage() {
             </div>
 
             <dl className="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Info label="Conducteur actuel" valeur={m.conducteur || "Non renseigné"} />
               <Info label="Emplacement" valeur={m.emplacement || "Non renseigné"} />
+              <Info label="Date de mise en place" valeur={formatDateFR(m.date_mise_en_place)} />
+              <Info
+                label="Heures cumulées"
+                valeur={`${totalHeures(journal.data ?? []).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} h`}
+              />
               <Info label="Mise en service" valeur={m.annee ? String(m.annee) : "—"} />
               <Info label="Fiche créée le" valeur={formatDateTimeFR(m.created_at)} />
               <Info label="Dernière mise à jour" valeur={formatDateTimeFR(m.date_derniere_maj)} />
@@ -243,6 +262,8 @@ function FichePage() {
               </div>
             ))}
           </section>
+
+          <JournalSection materiel={m} />
 
           <section className="glass-panel animate-rise rounded-2xl p-4 sm:p-5">
             <h2 className="font-display text-lg tracking-wide">Historique complet</h2>
