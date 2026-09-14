@@ -120,12 +120,20 @@ function FichePage() {
     <AppShell
       actions={
         m ? (
-          <button
-            onClick={() => setEdition(true)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-safety px-3.5 py-2 text-sm font-semibold text-safety-foreground transition hover:brightness-110"
-          >
-            <Pencil className="size-4" /> Modifier
-          </button>
+          <>
+            <button
+              onClick={() => window.print()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-foreground/5 px-3.5 py-2 text-sm font-medium ring-1 ring-border transition hover:bg-foreground/10"
+            >
+              <Printer className="size-4" /> Imprimer la fiche
+            </button>
+            <button
+              onClick={() => setEdition(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-safety px-3.5 py-2 text-sm font-semibold text-safety-foreground transition hover:brightness-110"
+            >
+              <Pencil className="size-4" /> Modifier
+            </button>
+          </>
         ) : null
       }
     >
@@ -150,9 +158,11 @@ function FichePage() {
         <>
           <section className="glass-panel animate-rise rounded-2xl p-4 sm:p-5">
             <div className="flex flex-wrap items-start gap-4">
-              <div className="grid size-14 shrink-0 place-items-center rounded-xl bg-steel/15 font-mono text-base font-bold text-steel">
-                {sigle(m.nom)}
-              </div>
+              <PhotoEngin
+                src={m.photo_url}
+                nom={m.nom}
+                className="size-28 rounded-2xl sm:size-32"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="font-display text-2xl tracking-wide sm:text-3xl">{m.nom}</h1>
