@@ -90,6 +90,8 @@ function FichePage() {
     },
   });
 
+  const journal = useJournal(id);
+
   const m = materiel.data ?? null;
   const cats = categories.data ?? [];
   const categorie = cats.find((c) => c.id === m?.categorie_id);
@@ -139,7 +141,7 @@ function FichePage() {
     >
       <Link
         to="/"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+        className="no-print inline-flex items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
       >
         <ArrowLeft className="size-4" /> Retour au parc
       </Link>
@@ -205,7 +207,13 @@ function FichePage() {
             </div>
 
             <dl className="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Info label="Conducteur actuel" valeur={m.conducteur || "Non renseigné"} />
               <Info label="Emplacement" valeur={m.emplacement || "Non renseigné"} />
+              <Info label="Date de mise en place" valeur={formatDateFR(m.date_mise_en_place)} />
+              <Info
+                label="Heures cumulées"
+                valeur={`${totalHeures(journal.data ?? []).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} h`}
+              />
               <Info label="Mise en service" valeur={m.annee ? String(m.annee) : "—"} />
               <Info label="Fiche créée le" valeur={formatDateTimeFR(m.created_at)} />
               <Info label="Dernière mise à jour" valeur={formatDateTimeFR(m.date_derniere_maj)} />
@@ -254,6 +262,8 @@ function FichePage() {
               </div>
             ))}
           </section>
+
+          <JournalSection materiel={m} />
 
           <section className="glass-panel animate-rise rounded-2xl p-4 sm:p-5">
             <h2 className="font-display text-lg tracking-wide">Historique complet</h2>
