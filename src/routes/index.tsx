@@ -18,13 +18,13 @@ import { AppShell } from "@/components/parc/AppShell";
 import { MaterielDialog } from "@/components/parc/MaterielDialog";
 import { CategorieDialog } from "@/components/parc/CategorieDialog";
 import { QuickEdit } from "@/components/parc/QuickEdit";
+import { PhotoEngin } from "@/components/parc/PhotoEngin";
 import {
   ETATS,
   ETAT_STYLE,
   formatDateCourte,
   iconePourCategorie,
   resumeEtats,
-  sigle,
   type Categorie,
   type Etat,
   type Materiel,
@@ -372,9 +372,7 @@ function LigneEngin({
       )}
     >
       <button onClick={onSelect} className="flex w-full items-center gap-3 text-left">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-steel/15 font-mono text-xs font-bold text-steel">
-          {sigle(materiel.nom)}
-        </div>
+        <PhotoEngin src={materiel.photo_url} nom={materiel.nom} className="size-12" />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
             <span className="font-semibold">{materiel.nom}</span>
@@ -393,6 +391,7 @@ function LigneEngin({
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
             <span>{materiel.emplacement || "Emplacement non renseigné"}</span>
+            {materiel.conducteur && <span>· {materiel.conducteur}</span>}
             <span className="ml-auto font-mono text-[10px]">
               maj {formatDateCourte(materiel.date_derniere_maj)}
             </span>
