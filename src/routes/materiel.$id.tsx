@@ -1,15 +1,16 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Pencil, TriangleAlert } from "lucide-react";
+import { ArrowLeft, Pencil, Printer, TriangleAlert } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/parc/AppShell";
 import { MaterielDialog } from "@/components/parc/MaterielDialog";
+import { PhotoEngin } from "@/components/parc/PhotoEngin";
+import { JournalSection, totalHeures, useJournal } from "@/components/parc/JournalSection";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ETAT_STYLE,
   iconePourCategorie,
-  sigle,
   type Categorie,
   type Historique,
   type Materiel,
