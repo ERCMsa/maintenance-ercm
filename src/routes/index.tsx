@@ -17,7 +17,7 @@ import {
 import { AppShell } from "@/components/parc/AppShell";
 import { MaterielDialog } from "@/components/parc/MaterielDialog";
 import { CategorieDialog } from "@/components/parc/CategorieDialog";
-import { QuickEdit } from "@/components/parc/QuickEdit";
+import { JournalSection } from "@/components/parc/JournalSection";
 import { PhotoEngin } from "@/components/parc/PhotoEngin";
 import {
   ETATS,
@@ -293,11 +293,31 @@ function ParcPage() {
         </div>
 
         <aside className="xl:sticky xl:top-16 xl:self-start">
-          <QuickEdit
-            materiel={selectionne}
-            categorieNom={cats.find((c) => c.id === selectionne?.categorie_id)?.nom}
-            onClose={() => setSelection(null)}
-          />
+          {selectionne ? (
+            <div className="animate-rise space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
+                  Journal de travail — {selectionne.nom}
+                </span>
+                <button
+                  onClick={() => setSelection(null)}
+                  className="rounded px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground hover:bg-foreground/5"
+                >
+                  Fermer
+                </button>
+              </div>
+              <JournalSection materiel={selectionne} />
+            </div>
+          ) : (
+            <div className="glass-panel rounded-xl p-4">
+              <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-steel">
+                Journal de travail
+              </div>
+              <p className="mt-3 text-sm text-muted-foreground">
+                Sélectionnez un engin dans la liste pour afficher son journal de travail.
+              </p>
+            </div>
+          )}
         </aside>
       </section>
 
