@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DateField } from "@/components/parc/DateField";
 import { ETATS, ETAT_STYLE, type Etat, type Journal, type Materiel } from "@/lib/materiel";
@@ -43,55 +43,43 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
   const entrees = journal.data ?? [];
 
   const [ouvert, setOuvert] = useState(false);
-  const [edition, setEdition] = useState<Journal | null>(null);
   const [date, setDate] = useState(aujourdhui());
+  const [emplacement, setEmplacement] = useState(materiel.emplacement);
   const [etat, setEtat] = useState<Etat>(materiel.etat);
   const [etatNotes, setEtatNotes] = useState("");
   const [heures, setHeures] = useState("");
+  const [conducteur, setConducteur] = useState(materiel.conducteur ?? "");
 
   useEffect(() => {
     if (!ouvert) return;
-    if (edition) {
-      setDate(edition.date);
-      setEtat(edition.etat);
-      setEtatNotes(edition.etat_notes ?? "");
-      setHeures(String(edition.heures ?? "").replace(".", ","));
-      return;
-    }
     setDate(aujourdhui());
+    setEmplacement(materiel.emplacement);
     setEtat(materiel.etat);
     setEtatNotes("");
     setHeures("");
-  }, [ouvert, edition, materiel]);
+    setConducteur(materiel.conducteur ?? "");
+  }, [ouvert, materiel]);
 
-  const fermer = () => {
-    setOuvert(false);
-    setEdition(null);
-  };
-
-  const enregistrer = useMutation({
+  const ajouter = useMutation({
     mutationFn: async () => {
       if (!date) throw new Error("La date est obligatoire");
       const h = Number(heures.replace(",", "."));
       if (!Number.isFinite(h) || h < 0 || h > 24 * 30) throw new Error("Heures invalides");
-      const valeurs = { date, etat, etat_notes: etatNotes.trim() || null, heures: h };
-      if (edition) {
-        const { error } = await supabase
-          .from("materiel_journal")
-          .update(valeurs)
-          .eq("id", edition.id);
-        if (error) throw new Error(error.message);
-        return;
-      }
-      const { error } = await supabase
-        .from("materiel_journal")
-        .insert({ materiel_id: materiel.id, ...valeurs });
+      const { error } = await supabase.from("materiel_journal").insert({
+        materiel_id: materiel.id,
+        date,
+        emplacement: emplacement.trim(),
+        etat,
+        etat_notes: etatNotes.trim() || null,
+        heures: h,
+        conducteur: conducteur.trim() || null,
+      });
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["journal", materiel.id] });
-      toast.success(edition ? "Entrée modifiée" : "Entrée ajoutée au journal");
-      fermer();
+      toast.success("Entrée ajoutée au journal");
+      setOuvert(false);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -119,7 +107,7 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
           {entrees.length} entrée{entrees.length > 1 ? "s" : ""}
         </span>
         <button
-          onClick={() => (ouvert ? fermer() : (setEdition(null), setOuvert(true)))}
+          onClick={() => setOuvert((v) => !v)}
           className="no-print ml-auto inline-flex items-center gap-1.5 rounded-lg bg-safety px-3 py-2 text-sm font-semibold text-safety-foreground transition hover:brightness-110"
         >
           <Plus className="size-4" /> {ouvert ? "Fermer" : "Ajouter une entrée"}
@@ -128,11 +116,36 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
 
       {ouvert && (
         <div className="no-print mt-4 space-y-3 rounded-xl panel-2 p-3">
-          <div className="font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-            {edition ? "Modifier l'entrée" : "Nouvelle entrée"}
-          </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <DateField label="Date" value={date} onChange={setDate} />
+            <div>
+              <label className={label} htmlFor="j-cond">
+                Conducteur
+              </label>
+              <input
+                id="j-cond"
+                className={champ}
+                value={conducteur}
+                maxLength={80}
+                placeholder="Nom du conducteur"
+                onChange={(e) => setConducteur(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className={label} htmlFor="j-empl">
+                Emplacement / chantier
+              </label>
+              <input
+                id="j-empl"
+                className={champ}
+                value={emplacement}
+                maxLength={120}
+                placeholder="Chantier, atelier…"
+                onChange={(e) => setEmplacement(e.target.value)}
+              />
+            </div>
             <div>
               <label className={label} htmlFor="j-heures">
                 Heures travaillées
@@ -181,25 +194,13 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
               onChange={(e) => setEtatNotes(e.target.value)}
             />
           </div>
-          <div className="flex gap-2">
-            <button
-              disabled={enregistrer.isPending}
-              onClick={() => enregistrer.mutate()}
-              className="flex-1 rounded-lg bg-foreground py-2.5 text-sm font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
-            >
-              {enregistrer.isPending
-                ? "Enregistrement…"
-                : edition
-                  ? "Enregistrer les modifications"
-                  : "Enregistrer l'entrée"}
-            </button>
-            <button
-              onClick={fermer}
-              className="rounded-lg bg-background/60 px-3 py-2.5 text-sm font-medium ring-1 ring-border transition hover:bg-foreground/5"
-            >
-              Annuler
-            </button>
-          </div>
+          <button
+            disabled={ajouter.isPending}
+            onClick={() => ajouter.mutate()}
+            className="w-full rounded-lg bg-foreground py-2.5 text-sm font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
+          >
+            {ajouter.isPending ? "Enregistrement…" : "Enregistrer l'entrée"}
+          </button>
         </div>
       )}
 
@@ -207,13 +208,14 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
         {entrees.length === 0 ? (
           <p className="text-sm text-muted-foreground">Aucune entrée de travail enregistrée.</p>
         ) : (
-          <table className="w-full min-w-[520px] text-sm">
+          <table className="w-full min-w-[640px] text-sm">
             <thead>
               <tr className="border-b border-border text-left font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
                 <th className="py-2 pr-3">Date</th>
+                <th className="py-2 pr-3">Emplacement</th>
                 <th className="py-2 pr-3">État</th>
-                <th className="py-2 pr-3">Observation</th>
                 <th className="py-2 pr-3">Heures</th>
+                <th className="py-2 pr-3">Conducteur</th>
                 <th className="no-print py-2" />
               </tr>
             </thead>
@@ -221,6 +223,12 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
               {entrees.map((e) => (
                 <tr key={e.id} className="border-b border-border/60 align-top">
                   <td className="py-2 pr-3 font-mono text-xs">{formatDateFR(e.date)}</td>
+                  <td className="py-2 pr-3">
+                    {e.emplacement || "—"}
+                    {e.etat_notes && (
+                      <div className="text-xs text-muted-foreground">{e.etat_notes}</div>
+                    )}
+                  </td>
                   <td className="py-2 pr-3">
                     <span
                       className={cn(
@@ -231,21 +239,11 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
                       {e.etat}
                     </span>
                   </td>
-                  <td className="py-2 pr-3 text-muted-foreground">{e.etat_notes || "—"}</td>
                   <td className="py-2 pr-3 font-mono text-xs">
                     {Number(e.heures).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} h
                   </td>
+                  <td className="py-2 pr-3">{e.conducteur || "—"}</td>
                   <td className="no-print py-2 text-right">
-                    <button
-                      onClick={() => {
-                        setEdition(e);
-                        setOuvert(true);
-                      }}
-                      aria-label="Modifier l'entrée"
-                      className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-foreground/10 hover:text-foreground"
-                    >
-                      <Pencil className="size-4" />
-                    </button>
                     <button
                       onClick={() => supprimer.mutate(e.id)}
                       aria-label="Supprimer l'entrée"
