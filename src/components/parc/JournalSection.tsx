@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DateField } from "@/components/parc/DateField";
 import { ETATS, ETAT_STYLE, type Etat, type Journal, type Materiel } from "@/lib/materiel";
@@ -43,6 +43,7 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
   const entrees = journal.data ?? [];
 
   const [ouvert, setOuvert] = useState(false);
+  const [edition, setEdition] = useState<Journal | null>(null);
   const [date, setDate] = useState(aujourdhui());
   const [emplacement, setEmplacement] = useState(materiel.emplacement);
   const [etat, setEtat] = useState<Etat>(materiel.etat);
@@ -51,35 +52,58 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
   const [conducteur, setConducteur] = useState(materiel.conducteur ?? "");
 
   useEffect(() => {
-    if (!ouvert) return;
+    if (!ouvert || edition) return;
     setDate(aujourdhui());
     setEmplacement(materiel.emplacement);
     setEtat(materiel.etat);
     setEtatNotes("");
     setHeures("");
     setConducteur(materiel.conducteur ?? "");
-  }, [ouvert, materiel]);
+  }, [ouvert, edition, materiel]);
 
-  const ajouter = useMutation({
+  const ouvrirAjout = () => {
+    setEdition(null);
+    setOuvert((v) => !v);
+  };
+
+  const ouvrirEdition = (e: Journal) => {
+    setEdition(e);
+    setDate(e.date);
+    setEmplacement(e.emplacement);
+    setEtat(e.etat);
+    setEtatNotes(e.etat_notes ?? "");
+    setHeures(String(e.heures).replace(".", ","));
+    setConducteur(e.conducteur ?? "");
+    setOuvert(true);
+  };
+
+  const fermer = () => {
+    setEdition(null);
+    setOuvert(false);
+  };
+
+  const sauvegarder = useMutation({
     mutationFn: async () => {
       if (!date) throw new Error("La date est obligatoire");
       const h = Number(heures.replace(",", "."));
       if (!Number.isFinite(h) || h < 0 || h > 24 * 30) throw new Error("Heures invalides");
-      const { error } = await supabase.from("materiel_journal").insert({
-        materiel_id: materiel.id,
+      const valeurs = {
         date,
         emplacement: emplacement.trim(),
         etat,
         etat_notes: etatNotes.trim() || null,
         heures: h,
         conducteur: conducteur.trim() || null,
-      });
+      };
+      const { error } = edition
+        ? await supabase.from("materiel_journal").update(valeurs).eq("id", edition.id)
+        : await supabase.from("materiel_journal").insert({ ...valeurs, materiel_id: materiel.id });
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["journal", materiel.id] });
-      toast.success("Entrée ajoutée au journal");
-      setOuvert(false);
+      toast.success(edition ? "Entrée mise à jour" : "Entrée ajoutée au journal");
+      fermer();
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -107,15 +131,23 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
           {entrees.length} entrée{entrees.length > 1 ? "s" : ""}
         </span>
         <button
-          onClick={() => setOuvert((v) => !v)}
+          onClick={ouvrirAjout}
           className="no-print ml-auto inline-flex items-center gap-1.5 rounded-lg bg-safety px-3 py-2 text-sm font-semibold text-safety-foreground transition hover:brightness-110"
         >
-          <Plus className="size-4" /> {ouvert ? "Fermer" : "Ajouter une entrée"}
+          <Plus className="size-4" /> {ouvert && !edition ? "Fermer" : "Ajouter une entrée"}
         </button>
       </div>
 
       {ouvert && (
         <div className="no-print mt-4 space-y-3 rounded-xl panel-2 p-3">
+          {edition && (
+            <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.15em] text-steel">
+              <span>Modification de l'entrée du {formatDateFR(edition.date)}</span>
+              <button onClick={fermer} className="rounded px-1.5 py-0.5 hover:bg-foreground/5">
+                Annuler
+              </button>
+            </div>
+          )}
           <div className="grid gap-3 sm:grid-cols-2">
             <DateField label="Date" value={date} onChange={setDate} />
             <div>
@@ -195,11 +227,15 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
             />
           </div>
           <button
-            disabled={ajouter.isPending}
-            onClick={() => ajouter.mutate()}
+            disabled={sauvegarder.isPending}
+            onClick={() => sauvegarder.mutate()}
             className="w-full rounded-lg bg-foreground py-2.5 text-sm font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
           >
-            {ajouter.isPending ? "Enregistrement…" : "Enregistrer l'entrée"}
+            {sauvegarder.isPending
+              ? "Enregistrement…"
+              : edition
+                ? "Mettre à jour l'entrée"
+                : "Enregistrer l'entrée"}
           </button>
         </div>
       )}
@@ -244,13 +280,22 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
                   </td>
                   <td className="py-2 pr-3">{e.conducteur || "—"}</td>
                   <td className="no-print py-2 text-right">
-                    <button
-                      onClick={() => supprimer.mutate(e.id)}
-                      aria-label="Supprimer l'entrée"
-                      className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-bad/10 hover:text-bad"
-                    >
-                      <Trash2 className="size-4" />
-                    </button>
+                    <div className="flex justify-end gap-1">
+                      <button
+                        onClick={() => ouvrirEdition(e)}
+                        aria-label="Modifier l'entrée"
+                        className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-safety/10 hover:text-safety"
+                      >
+                        <Pencil className="size-4" />
+                      </button>
+                      <button
+                        onClick={() => supprimer.mutate(e.id)}
+                        aria-label="Supprimer l'entrée"
+                        className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-bad/10 hover:text-bad"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
