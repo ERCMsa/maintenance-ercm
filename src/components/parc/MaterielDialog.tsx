@@ -242,40 +242,11 @@ export function MaterielDialog({ open, onOpenChange, categories, materiel }: Pro
               </div>
             </div>
 
-            <div>
-              <label className={label} htmlFor="empl">
-                Emplacement
-              </label>
-              <input
-                id="empl"
-                className={champ}
-                value={form.emplacement}
-                maxLength={120}
-                placeholder="Chantier X, Atelier, En réparation…"
-                onChange={(e) => set({ emplacement: e.target.value })}
-              />
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <label className={label} htmlFor="cond">
-                  Conducteur actuel
-                </label>
-                <input
-                  id="cond"
-                  className={champ}
-                  value={form.conducteur}
-                  maxLength={80}
-                  placeholder="Nom du conducteur"
-                  onChange={(e) => set({ conducteur: e.target.value })}
-                />
-              </div>
-              <DateField
-                label="Date de mise en place"
-                value={form.date_mise_en_place}
-                onChange={(v) => set({ date_mise_en_place: v })}
-              />
-            </div>
+            <DateField
+              label="Date de mise en place"
+              value={form.date_mise_en_place}
+              onChange={(v) => set({ date_mise_en_place: v })}
+            />
           </div>
 
           <div className="space-y-3 rounded-xl panel-2 p-3">
