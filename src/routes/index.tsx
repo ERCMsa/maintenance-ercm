@@ -17,7 +17,7 @@ import {
 import { AppShell } from "@/components/parc/AppShell";
 import { MaterielDialog } from "@/components/parc/MaterielDialog";
 import { CategorieDialog } from "@/components/parc/CategorieDialog";
-import { QuickEdit } from "@/components/parc/QuickEdit";
+import { JournalPanel } from "@/components/parc/JournalPanel";
 import { PhotoEngin } from "@/components/parc/PhotoEngin";
 import {
   ETATS,
@@ -293,7 +293,7 @@ function ParcPage() {
         </div>
 
         <aside className="xl:sticky xl:top-16 xl:self-start">
-          <QuickEdit
+          <JournalPanel
             materiel={selectionne}
             categorieNom={cats.find((c) => c.id === selectionne?.categorie_id)?.nom}
             onClose={() => setSelection(null)}
