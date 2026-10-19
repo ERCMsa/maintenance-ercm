@@ -23,14 +23,14 @@ export function AppShell({
         {/* Sidebar desktop */}
         <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-border bg-surface/70 backdrop-blur-xl lg:flex">
           <div className="flex items-center gap-3 px-4 py-4">
-            <div className="grid size-9 place-items-center rounded-lg bg-safety font-display text-sm text-safety-foreground">
-              PM
-            </div>
+            <img
+              src="/logo-single.png"
+              alt="Logo Parc Matériel"
+              className="h-12"
+            />
             <div className="leading-tight">
-              <div className="font-display text-base tracking-wide">PARC MATÉRIEL</div>
-              <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
-                Charpente métallique
-              </div>
+              <div className="font-display text-base tracking-wide">SUIVI MATÉRIEL</div>
+             
             </div>
           </div>
           <nav className="mt-2 space-y-1 px-3">
