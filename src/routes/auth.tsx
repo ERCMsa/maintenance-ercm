@@ -30,9 +30,8 @@ function cible(r?: string) {
 
 function messageErreur(msg: string) {
   const m = msg.toLowerCase();
-  if (m.includes("invalid login")) return "Email ou mot de passe incorrect.";
-  if (m.includes("email not confirmed")) return "Email non confirmé : vérifiez votre boîte de réception.";
-  if (m.includes("already registered")) return "Un compte existe déjà avec cet email.";
+  if (m.includes("invalid login")) return "Nom d'utilisateur ou mot de passe incorrect.";
+  if (m.includes("already registered")) return "Ce nom d'utilisateur est déjà pris.";
   if (m.includes("password")) return "Mot de passe trop faible (8 caractères minimum).";
   if (m.includes("rate limit")) return "Trop de tentatives, réessayez dans quelques minutes.";
   return "Une erreur est survenue. Réessayez.";
@@ -57,27 +56,32 @@ function AuthPage() {
     e.preventDefault();
     setErreur(null);
     const parsed = z
-      .object({ email: z.string().trim().email(), password: z.string().min(mode === "signup" ? 8 : 1) })
-      .safeParse({ email, password });
+      .object({
+        username: z.string().trim().toLowerCase().regex(/^[a-z0-9._-]{3,32}$/),
+        password: z.string().min(mode === "signup" ? 8 : 1),
+      })
+      .safeParse({ username: email, password });
     if (!parsed.success) {
-      setErreur(mode === "signup" ? "Email valide et mot de passe de 8 caractères minimum requis." : "Email valide et mot de passe requis.");
+      setErreur(
+        mode === "signup"
+          ? "Nom d'utilisateur (3-32 caractères : lettres, chiffres, . _ -) et mot de passe de 8 caractères minimum requis."
+          : "Nom d'utilisateur et mot de passe requis.",
+      );
       return;
     }
+    const creds = { email: `${parsed.data.username}@parc.local`, password: parsed.data.password };
     setBusy(true);
     try {
       if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword(parsed.data);
+        const { error } = await supabase.auth.signInWithPassword(creds);
         if (error) throw error;
         navigate({ to: cible(redirect), replace: true });
       } else {
-        const { data, error } = await supabase.auth.signUp({
-          ...parsed.data,
-          options: { emailRedirectTo: window.location.origin },
-        });
+        const { data, error } = await supabase.auth.signUp(creds);
         if (error) throw error;
-        if (data.session) navigate({ to: "/", replace: true });
+        if (data.session) navigate({ to: cible(redirect), replace: true });
         else {
-          toast.success("Compte créé : confirmez votre email pour vous connecter.");
+          toast.success("Compte créé, connectez-vous.");
           setMode("login");
         }
       }
@@ -102,8 +106,8 @@ function AuthPage() {
           </div>
         </div>
         <div>
-          <label className={label} htmlFor="email">Email</label>
-          <input id="email" type="email" autoComplete="email" className={champ} value={email} maxLength={255} onChange={(e) => setEmail(e.target.value)} />
+          <label className={label} htmlFor="email">Nom d'utilisateur</label>
+          <input id="email" type="text" autoComplete="username" autoCapitalize="none" className={champ} value={email} maxLength={32} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div>
           <label className={label} htmlFor="pwd">Mot de passe</label>
