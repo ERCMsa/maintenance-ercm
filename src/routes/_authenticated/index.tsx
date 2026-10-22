@@ -32,7 +32,7 @@ import {
 import { alerteMateriel, STATUT_STYLE } from "@/lib/echeances";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "Parc Matériel — Suivi des engins de chantier" },

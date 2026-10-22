@@ -28,7 +28,7 @@ import {
 } from "@/lib/echeances";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/materiel/$id")({
+export const Route = createFileRoute("/_authenticated/materiel/$id")({
   head: () => ({
     meta: [
       { title: "Fiche matériel — Parc Matériel" },

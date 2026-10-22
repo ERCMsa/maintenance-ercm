@@ -9,86 +9,90 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as EcheancesRouteImport } from './routes/echeances'
-import { Route as MaterielIdRouteImport } from './routes/materiel.$id'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedEcheancesRouteImport } from './routes/_authenticated/echeances'
+import { Route as AuthenticatedMaterielIdRouteImport } from './routes/_authenticated/materiel.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/_authenticated/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EcheancesRoute = EcheancesRouteImport.update({
-  id: '/echeances',
+const AuthenticatedEcheancesRoute = AuthenticatedEcheancesRouteImport.update({
+  id: '/_authenticated/echeances',
   path: '/echeances',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MaterielIdRoute = MaterielIdRouteImport.update({
-  id: '/materiel/$id',
+const AuthenticatedMaterielIdRoute = AuthenticatedMaterielIdRouteImport.update({
+  id: '/_authenticated/materiel/$id',
   path: '/materiel/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/echeances': typeof EcheancesRoute
-  '/materiel/$id': typeof MaterielIdRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/materiel/$id': typeof AuthenticatedMaterielIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/echeances': typeof EcheancesRoute
-  '/materiel/$id': typeof MaterielIdRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/materiel/$id': typeof AuthenticatedMaterielIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/echeances': typeof EcheancesRoute
-  '/materiel/$id': typeof MaterielIdRoute
+  '/_authenticated/echeances': typeof AuthenticatedEcheancesRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/materiel/$id': typeof AuthenticatedMaterielIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/echeances' | '/materiel/$id'
+  fullPaths: '/echeances' | '/' | '/materiel/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/echeances' | '/materiel/$id'
-  id: '__root__' | '/' | '/echeances' | '/materiel/$id'
+  to: '/echeances' | '/' | '/materiel/$id'
+  id:
+    | '__root__'
+    | '/_authenticated/echeances'
+    | '/_authenticated/'
+    | '/_authenticated/materiel/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  EcheancesRoute: typeof EcheancesRoute
-  MaterielIdRoute: typeof MaterielIdRoute
+  AuthenticatedEcheancesRoute: typeof AuthenticatedEcheancesRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedMaterielIdRoute: typeof AuthenticatedMaterielIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/echeances': {
-      id: '/echeances'
+    '/_authenticated/echeances': {
+      id: '/_authenticated/echeances'
       path: '/echeances'
       fullPath: '/echeances'
-      preLoaderRoute: typeof EcheancesRouteImport
+      preLoaderRoute: typeof AuthenticatedEcheancesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/materiel/$id': {
-      id: '/materiel/$id'
+    '/_authenticated/materiel/$id': {
+      id: '/_authenticated/materiel/$id'
       path: '/materiel/$id'
       fullPath: '/materiel/$id'
-      preLoaderRoute: typeof MaterielIdRouteImport
+      preLoaderRoute: typeof AuthenticatedMaterielIdRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  EcheancesRoute: EcheancesRoute,
-  MaterielIdRoute: MaterielIdRoute,
+  AuthenticatedEcheancesRoute: AuthenticatedEcheancesRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedMaterielIdRoute: AuthenticatedMaterielIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
