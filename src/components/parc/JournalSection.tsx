@@ -7,6 +7,15 @@ import { DateField } from "@/components/parc/DateField";
 import { ETATS, ETAT_STYLE, type Etat, type Journal, type Materiel } from "@/lib/materiel";
 import { formatDateFR } from "@/lib/echeances";
 import { cn } from "@/lib/utils";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const label = "block font-mono text-[10px] uppercase tracking-[0.15em] text-muted-foreground";
 const champ =
@@ -43,6 +52,7 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
   const entrees = journal.data ?? [];
 
   const [ouvert, setOuvert] = useState(false);
+  const [aSupprimer, setASupprimer] = useState<Journal | null>(null);
   const [edition, setEdition] = useState<Journal | null>(null);
   const [date, setDate] = useState(aujourdhui());
   const [emplacement, setEmplacement] = useState(materiel.emplacement);
@@ -115,7 +125,8 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["journal", materiel.id] });
-      toast.success("Entrée supprimée");
+      toast.success("Journal de travail supprimé");
+      setASupprimer(null);
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -289,7 +300,7 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
                         <Pencil className="size-4" />
                       </button>
                       <button
-                        onClick={() => supprimer.mutate(e.id)}
+                        onClick={() => setASupprimer(e)}
                         aria-label="Supprimer l'entrée"
                         className="rounded-lg p-1.5 text-muted-foreground transition hover:bg-bad/10 hover:text-bad"
                       >
@@ -303,6 +314,31 @@ export function JournalSection({ materiel }: { materiel: Materiel }) {
           </table>
         )}
       </div>
+      <AlertDialog
+        open={!!aSupprimer}
+        onOpenChange={(o) => {
+          if (!o && !supprimer.isPending) setASupprimer(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer ce journal de travail ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={supprimer.isPending}>Annuler</AlertDialogCancel>
+            <button
+              disabled={supprimer.isPending}
+              onClick={() => aSupprimer && supprimer.mutate(aSupprimer.id)}
+              className="inline-flex items-center justify-center rounded-md bg-bad px-4 py-2 text-sm font-semibold text-background transition hover:brightness-110 disabled:opacity-60"
+            >
+              {supprimer.isPending ? "Suppression…" : "Supprimer"}
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }
