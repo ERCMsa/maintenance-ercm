@@ -9,86 +9,134 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as EcheancesRouteImport } from './routes/echeances'
-import { Route as MaterielIdRouteImport } from './routes/materiel.$id'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedEcheancesRouteImport } from './routes/_authenticated/echeances'
+import { Route as AuthenticatedMaterielIdRouteImport } from './routes/_authenticated/materiel.$id'
 
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const EcheancesRoute = EcheancesRouteImport.update({
+const AuthenticatedEcheancesRoute = AuthenticatedEcheancesRouteImport.update({
   id: '/echeances',
   path: '/echeances',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const MaterielIdRoute = MaterielIdRouteImport.update({
+const AuthenticatedMaterielIdRoute = AuthenticatedMaterielIdRouteImport.update({
   id: '/materiel/$id',
   path: '/materiel/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/echeances': typeof EcheancesRoute
-  '/materiel/$id': typeof MaterielIdRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/auth': typeof AuthRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
+  '/materiel/$id': typeof AuthenticatedMaterielIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/echeances': typeof EcheancesRoute
-  '/materiel/$id': typeof MaterielIdRoute
+  '/auth': typeof AuthRoute
+  '/echeances': typeof AuthenticatedEcheancesRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/materiel/$id': typeof AuthenticatedMaterielIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/echeances': typeof EcheancesRoute
-  '/materiel/$id': typeof MaterielIdRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/echeances': typeof AuthenticatedEcheancesRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/materiel/$id': typeof AuthenticatedMaterielIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/echeances' | '/materiel/$id'
+  fullPaths: '/' | '/auth' | '/echeances' | '/materiel/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/echeances' | '/materiel/$id'
-  id: '__root__' | '/' | '/echeances' | '/materiel/$id'
+  to: '/auth' | '/echeances' | '/' | '/materiel/$id'
+  id:
+    | '__root__'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/echeances'
+    | '/_authenticated/'
+    | '/_authenticated/materiel/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  EcheancesRoute: typeof EcheancesRoute
-  MaterielIdRoute: typeof MaterielIdRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/echeances': {
-      id: '/echeances'
+    '/_authenticated/echeances': {
+      id: '/_authenticated/echeances'
       path: '/echeances'
       fullPath: '/echeances'
-      preLoaderRoute: typeof EcheancesRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedEcheancesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/materiel/$id': {
-      id: '/materiel/$id'
+    '/_authenticated/materiel/$id': {
+      id: '/_authenticated/materiel/$id'
       path: '/materiel/$id'
       fullPath: '/materiel/$id'
-      preLoaderRoute: typeof MaterielIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMaterielIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedEcheancesRoute: typeof AuthenticatedEcheancesRoute
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedMaterielIdRoute: typeof AuthenticatedMaterielIdRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedEcheancesRoute: AuthenticatedEcheancesRoute,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedMaterielIdRoute: AuthenticatedMaterielIdRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  EcheancesRoute: EcheancesRoute,
-  MaterielIdRoute: MaterielIdRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

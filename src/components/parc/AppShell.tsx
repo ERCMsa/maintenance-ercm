@@ -1,7 +1,20 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
-import { Boxes, CalendarClock, LayoutGrid } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Boxes, CalendarClock, LayoutGrid, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+
+function useDeconnexion() {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  return async () => {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+}
 
 const NAV = [
   { to: "/", label: "Parc matériel", icon: LayoutGrid },
@@ -15,6 +28,7 @@ export function AppShell({
   children: ReactNode;
   actions?: ReactNode;
 }) {
+  const deconnexion = useDeconnexion();
   return (
     <div className="relative min-h-screen">
       <div className="atelier-haze pointer-events-none fixed inset-0" />
@@ -77,7 +91,17 @@ export function AppShell({
                   </Link>
                 ))}
               </nav>
-              <div className="ml-auto flex items-center gap-2">{actions}</div>
+              <div className="ml-auto flex items-center gap-2">
+                {actions}
+                <button
+                  onClick={deconnexion}
+                  aria-label="Se déconnecter"
+                  className="no-print inline-flex items-center gap-1.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted-foreground ring-1 ring-border transition hover:bg-foreground/5 hover:text-foreground"
+                >
+                  <LogOut className="size-4" />
+                  <span className="hidden sm:inline">Déconnexion</span>
+                </button>
+              </div>
             </div>
           </header>
 

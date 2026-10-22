@@ -7,7 +7,7 @@ import { sigle, type Materiel } from "@/lib/materiel";
 import { echeances, formatDateFR, STATUT_STYLE, type StatutEcheance } from "@/lib/echeances";
 import { cn } from "@/lib/utils";
 
-export const Route = createFileRoute("/echeances")({
+export const Route = createFileRoute("/_authenticated/echeances")({
   head: () => ({
     meta: [
       { title: "Échéances du parc — Parc Matériel" },
